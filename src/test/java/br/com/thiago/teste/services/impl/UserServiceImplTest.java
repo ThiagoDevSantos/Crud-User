@@ -4,6 +4,7 @@ import br.com.thiago.teste.domain.User;
 import br.com.thiago.teste.domain.dto.UserDTO;
 import br.com.thiago.teste.repositories.UserRepository;
 
+import br.com.thiago.teste.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,6 +25,7 @@ class UserServiceImplTest {
     public static final String NAME = "Thiago";
     public static final String EMAIL = "thi@gmail.com";
     public static final String PASSWORD = "123";
+    public static final String NAO_ENCONTRADO = "Objeto não encontrado";
 
     @InjectMocks
     private UserServiceImpl service;
@@ -57,6 +59,19 @@ class UserServiceImplTest {
         assertEquals(ID, response.getId());
         assertEquals(EMAIL,response.getEmail());
     }
+
+    @Test
+    void  whenFindByIdThenReturnAnObjectNotFound(){
+        when(repository.findById(anyInt())).thenThrow(new ObjectNotFoundException(NAO_ENCONTRADO));
+
+        try {
+            service.findById(ID);
+        }catch (Exception ex){
+            assertEquals(ObjectNotFoundException.class,ex.getClass());
+            assertEquals(NAO_ENCONTRADO,ex.getMessage());
+        }
+    }
+
 
     @Test
     void findAll() {
