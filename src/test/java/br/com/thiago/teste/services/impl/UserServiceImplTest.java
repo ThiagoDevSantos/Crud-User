@@ -4,6 +4,7 @@ import br.com.thiago.teste.domain.User;
 import br.com.thiago.teste.domain.dto.UserDTO;
 import br.com.thiago.teste.repositories.UserRepository;
 
+import br.com.thiago.teste.services.exceptions.DataIntegratyViolationException;
 import br.com.thiago.teste.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -101,7 +101,42 @@ class UserServiceImplTest {
     }
 
     @Test
-    void update() {
+    void createUsers_Exception() {
+        when(repository.findByEmail(anyString())).thenReturn(optionalUser);
+        try{
+            optionalUser.get().setId(2);
+            service.create(userDTO);
+        }catch (Exception ex){
+            assertEquals(DataIntegratyViolationException.class, ex.getClass());
+            assertEquals("e-mail já cadastrado no sistema", ex.getMessage());
+        }
+
+    }
+
+    @Test
+    void UpdateUsers_Success() {
+        when(repository.save(any())).thenReturn(user);
+
+        User response = service.update(userDTO);
+
+        assertNotNull(user);
+        assertEquals(User.class,response.getClass());
+        assertEquals(ID, response.getId());
+        assertEquals(EMAIL, response.getEmail());
+
+    }
+
+    @Test
+    void updateUsers_Exception() {
+        when(repository.findByEmail(anyString())).thenReturn(optionalUser);
+        try{
+            optionalUser.get().setId(2);
+            service.create(userDTO);
+        }catch (Exception ex){
+            assertEquals(DataIntegratyViolationException.class, ex.getClass());
+            assertEquals("e-mail já cadastrado no sistema", ex.getMessage());
+        }
+
     }
 
     @Test
