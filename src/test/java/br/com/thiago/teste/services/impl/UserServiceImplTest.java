@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class UserServiceImplTest {
@@ -88,7 +88,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void createUsers_Success() {
+    void createUsersSuccess() {
         when(repository.save(any())).thenReturn(user);
 
         User response = service.create(userDTO);
@@ -101,7 +101,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void createUsers_Exception() {
+    void createUsersException() {
         when(repository.findByEmail(anyString())).thenReturn(optionalUser);
         try{
             optionalUser.get().setId(2);
@@ -114,7 +114,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void UpdateUsers_Success() {
+    void UpdateUsersSuccess() {
         when(repository.save(any())).thenReturn(user);
 
         User response = service.update(userDTO);
@@ -127,7 +127,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateUsers_Exception() {
+    void updateUsersException() {
         when(repository.findByEmail(anyString())).thenReturn(optionalUser);
         try{
             optionalUser.get().setId(2);
@@ -140,7 +140,25 @@ class UserServiceImplTest {
     }
 
     @Test
-    void delete() {
+    void deleteSuccess() {
+        when(repository.findById(anyInt())).thenReturn(optionalUser);
+        doNothing().when(repository).deleteById(anyInt());
+
+        service.delete(ID);
+        verify(repository,times(1)).deleteById(anyInt());
+    }
+
+    @Test
+    void deleteException() {
+        when(repository.findById(anyInt())).thenThrow(new ObjectNotFoundException("Objeto não encontrado"));
+
+        try {
+            service.delete(ID);
+        }catch(Exception ex){
+            assertEquals(ObjectNotFoundException.class,ex.getClass());
+            assertEquals("Objeto não encontrado",ex.getMessage());
+        }
+
     }
 
     private void startUser(){
